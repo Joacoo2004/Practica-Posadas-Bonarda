@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const token = localStorage.getItem('token');
       if (!token) {
         // No token, redirect to user creation/login page
-        window.location.href = '/crear_usuario';
+        window.location.href = '/iniciar_sesion';
         return;
       }
 
@@ -35,12 +35,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
         } else {
           // Token invalid/expired, redirect to login
           localStorage.removeItem('token');
-          window.location.href = '/crear_usuario';
+          window.location.href = '/iniciar_sesion';
         }
       } catch (error) {
         console.error('Token validation failed:', error);
         localStorage.removeItem('token');
-        window.location.href = '/crear_usuario';
+        window.location.href = '/iniciar_sesion';
       }
     });
   }

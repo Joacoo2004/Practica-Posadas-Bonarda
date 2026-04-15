@@ -135,7 +135,7 @@ initialize_posada_system(cursor, connection)
 ### Rutas disponibles del frontend
 
 - `/` - Página principal
-- `/crear_usuario` - Registro
+- `/iniciar_sesion` - Inicio de sesión y registro
 - `/login` - Inicio de sesión
 - `/crear_reserva` - Nueva reserva
 - `/gestion_usuarios` - Administración de usuarios

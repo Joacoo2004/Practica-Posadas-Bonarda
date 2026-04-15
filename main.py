@@ -52,8 +52,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 def root():
     return FileResponse("public/pages/home/home.html")
 
-@app.get("/crear_usuario")
-def crear_usuario_page():
+@app.get("/iniciar_sesion")
+def iniciar_sesion_page():
     return FileResponse("public/pages/crear_usuario/crear_usuario.html")
 
 @app.get("/ya_tengo_sesion")

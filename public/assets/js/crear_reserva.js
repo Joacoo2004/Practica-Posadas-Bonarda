@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         reservasList.style.display = 'none';
         if (crearReservaSection) crearReservaSection.style.display = 'none';
         alert('Sesión no iniciada o expirada. Redirigiendo al login.');
-        window.location.href = '/crear_usuario';
+        window.location.href = '/iniciar_sesion';
         return;
     }
 
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.log('DEBUG: Unauthorized or Forbidden, redirecting to login');
                 localStorage.removeItem('token');
                 alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
-                window.location.href = '/crear_usuario';
+                window.location.href = '/iniciar_sesion';
                 return;
             }
             throw new Error('Error al obtener reservas');
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     if (response.status === 401 || response.status === 403) {
                         localStorage.removeItem('token');
                         alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
-                        window.location.href = '/crear_usuario';
+                        window.location.href = '/iniciar_sesion';
                         return;
                     }
                     throw new Error(`Error: ${response.status} - ${errorData.detail || 'Error desconocido'}`);
