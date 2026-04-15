@@ -42,8 +42,8 @@
         <a href="/" class="text-sm font-medium text-[#2a3222] hover:text-[#3d4632] hover:scale-105 transition-all duration-300">Inicio</a>
         <a href="/sobre_nosotros" class="text-sm font-medium text-[#2a3222] hover:text-[#3d4632] hover:scale-105 transition-all duration-300">Sobre Nosotros</a>
         <a href="/galeria" class="text-sm font-medium text-[#2a3222] hover:text-[#3d4632] hover:scale-105 transition-all duration-300">Galería</a>
-        <a href="/crear_reserva" class="text-sm font-medium text-[#2a3222] hover:text-[#3d4632] hover:scale-105 transition-all duration-300">Reservas</a>
-        <a href="/iniciar_sesion" class="px-5 py-2 rounded-full bg-[#2a3222] text-white text-sm font-semibold hover:bg-[#747C6C] transition-all">
+        <a id="reservas-link" href="/crear_reserva" class="text-sm font-medium text-[#2a3222] hover:text-[#3d4632] hover:scale-105 transition-all duration-300 hidden">Reservas</a>
+        <a id="auth-btn" href="/iniciar_sesion" class="px-5 py-2 rounded-full bg-[#2a3222] text-white text-sm font-semibold hover:bg-[#747C6C] transition-all">
           [Iniciar Sesión]
         </a>
       </div>
@@ -59,8 +59,8 @@
       <a href="/" class="block py-2 text-sm font-medium">Inicio</a>
       <a href="/sobre_nosotros" class="block py-2 text-sm font-medium">Sobre Nosotros</a>
       <a href="/galeria" class="block py-2 text-sm font-medium">Galería</a>
-      <a href="/crear_reserva" class="block py-2 text-sm font-medium">Reservas</a>
-      <a href="/iniciar_sesion" class="block py-2 text-sm font-medium text-[#2a3222]">Iniciar Sesión</a>
+      <a id="reservas-link-mobile" href="/crear_reserva" class="block py-2 text-sm font-medium hidden">Reservas</a>
+      <a id="auth-btn-mobile" href="/iniciar_sesion" class="block py-2 text-sm font-medium text-[#2a3222]">Iniciar Sesión</a>
     </div>
   </nav>
 
@@ -193,5 +193,6 @@
     </div>
   </footer>
 
+<script src="/static/assets/js/auth-nav.js"></script>
 </body>
 </html>
