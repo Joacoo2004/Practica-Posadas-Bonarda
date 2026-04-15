@@ -95,8 +95,14 @@ The project uses **Tailwind CSS v4** via CDN with a custom color palette based o
 ## Footer (Home Page)
 
 Located at `public/pages/home/home.html`:
-- **Contacto section**: Links to Instagram, WhatsApp, Gmail
-- **Ubicación section**: Google Maps embed iframe (**NO FUNCIONA** - requiere API key válida de Google Maps)
+- **Contacto section**: Links to Instagram, WhatsApp, Gmail, Google Maps link
+
+## Mapa (Home Page)
+
+Located in main content (not footer) at `public/pages/home/home.html`:
+- Uses **OpenStreetMap + Leaflet.js** (free, no API key required)
+- Interactivo con marker en coordenadas placeholder: Mendoza [-32.8897, -68.8414]
+- Botón "Ver en Google Maps" para abrir en Google Maps externo
 
 ---
 
