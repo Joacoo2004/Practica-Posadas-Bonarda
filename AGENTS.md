@@ -92,6 +92,14 @@ The project uses **Tailwind CSS v4** via CDN with a custom color palette based o
 - `pydantic[email]` is required for `EmailStr` type used in `models/user.py`.
 - Database tables are auto-created on first connection via `config/database_initialization.py`.
 
+## Authentication
+
+- Token JWT almacenado en `localStorage` con clave `token`
+- Navbar dinámico: archivo `public/assets/js/auth-nav.js` carga en todas las páginas públicas
+- IDs requeridos en navbar: `auth-btn`, `auth-btn-mobile`, `reservas-link`, `reservas-link-mobile`
+- "Cerrar Sesión" tiene hover rojo (`hover:bg-red-600` desktop, `text-red-600` mobile)
+- Link "Reservas" hidden por defecto, visible solo con token activo
+
 ## Footer (Home Page)
 
 Located at `public/pages/home/home.html`:

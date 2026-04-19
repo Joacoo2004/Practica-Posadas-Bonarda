@@ -8,10 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/main.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/main.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.15/main.min.css">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.15/index.global.min.js"></script>
   <style>
     @theme {
       --color-beige: #bfae8f;
@@ -30,6 +33,73 @@
     h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .fc { 
+      --fc-border-color: #DCD6CA; 
+      --fc-button-bg-color: #2a3222; 
+      --fc-button-border-color: #2a3222; 
+      --fc-button-hover-bg-color: #3d4632; 
+      --fc-button-hover-border-color: #3d4632; 
+      --fc-button-active-bg-color: #3d4632; 
+      --fc-button-active-border-color: #3d4632; 
+      --fc-today-bg-color: #f6f4f1;
+      max-width: 100%;
+      width: 100%;
+    }
+    .fc .fc-toolbar { margin-bottom: 1rem; }
+    .fc .fc-toolbar-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; }
+    .fc .fc-button { font-family: 'Inter', sans-serif; font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; padding: 0.5rem 1rem; }
+    .fc .fc-daygrid-day-number { font-family: 'Inter', sans-serif; color: #6a6156; text-decoration: none; padding: 8px; }
+    .fc .fc-col-header-cell-cushion { font-family: 'Inter', sans-serif; color: #6a6156; text-decoration: none; font-weight: 600; padding: 8px; }
+    .fc-event { border: none; cursor: default; }
+    /* Reserva del usuario - estilo destacado */
+    .fc-event.reserva-usuario { 
+      background-color: #2a3222; 
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 0.75rem;
+    }
+    .fc .fc-daygrid-day.fc-day-today { background-color: #f6f4f1; }
+    .fc .fc-daygrid-day:hover { background-color: #F0F0F0; }
+    .fc .fc-highlight { background-color: #bfae8f40; }
+    .fc .fc-daygrid-day { transition: background-color 0.2s; }
+    .fc .fc-scrollgrid { border: 1px solid #DCD6CA; }
+    .fc .fc-th td, .fc .fc-th th { border-color: #DCD6CA; }
+    .fc td, .fc th { border-color: #DCD6CA; }
+    #calendar { min-height: 400px; display: block; }
+    
+    /* Leyenda del calendario */
+    .calendar-legend {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #6a6156;
+    }
+    .legend-blocked {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background-color: #ef4444;
+    }
+    .legend-mine {
+      width: 20px;
+      height: 12px;
+      border-radius: 3px;
+      background-color: #2a3222;
+    }
+    .legend-available {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background-color: #22c55e;
+    }
   </style>
 </head>
 <body class="bg-[#f6f4f1] text-[#6a6156] min-h-screen flex flex-col">
@@ -87,31 +157,45 @@
         <h2 class="text-xl font-semibold mb-6 text-[#2a3222]">Crear Nueva Reserva</h2>
         
         <form id="reserva-form" class="space-y-5">
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <span class="legend-available"></span>
+              <span>Disponible</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-blocked"></span>
+              <span>Completo (sin disponibilidad)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-mine"></span>
+              <span>Tu reserva</span>
+            </div>
+          </div>
+          <div id="calendar" class="mb-6 p-4 bg-white rounded-lg border border-[#DCD6CA]"></div>
+          
           <div class="grid md:grid-cols-2 gap-5">
             <div>
-              <label for="fecha_check_in" class="block text-sm font-medium text-[#6a6156] mb-2">Fecha de Entrada</label>
-              <input type="text" id="fecha_check_in" name="fecha_check_in" required
-                class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none"
+              <label for="fecha_check_in" class="block text-sm font-medium text-[#6a6156] mb-2">Fecha de Entrada (DD/MM/AAAA)</label>
+              <input type="text" id="fecha_check_in" name="fecha_check_in" placeholder="DD/MM/AAAA" required
+                class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none cursor-pointer"
               >
             </div>
             <div>
-              <label for="fecha_check_out" class="block text-sm font-medium text-[#6a6156] mb-2">Fecha de Salida</label>
-              <input type="text" id="fecha_check_out" name="fecha_check_out" required
-                class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none"
+              <label for="fecha_check_out" class="block text-sm font-medium text-[#6a6156] mb-2">Fecha de Salida (DD/MM/AAAA)</label>
+              <input type="text" id="fecha_check_out" name="fecha_check_out" placeholder="DD/MM/AAAA" required
+                class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none cursor-pointer"
               >
             </div>
           </div>
 
           <div>
             <label for="cantidad_habitaciones" class="block text-sm font-medium text-[#6a6156] mb-2">Cantidad de Habitaciones</label>
-            <select id="cantidad_habitaciones" name="cantidad_habitaciones" required
-              class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none"
+            <select id="cantidad_habitaciones" name="cantidad_habitaciones" required disabled
+              class="w-full h-12 px-4 rounded-lg border border-[#DCD6CA] bg-white text-[#6a6156] focus:bg-white focus:border-[#2a3222] focus:ring-2 focus:ring-[#2a3222]/20 transition-all outline-none disabled:bg-gray-100 disabled:text-gray-400"
             >
-              <option value="1">1 Habitación</option>
-              <option value="2">2 Habitaciones</option>
-              <option value="3">3 Habitaciones</option>
-              <option value="4">4 Habitaciones</option>
+              <option value="">Selecciona fechas primero</option>
             </select>
+            <p id="availability-message" class="text-sm text-green-600 mt-2">Las 4 habitaciones están disponibles para todas las fechas</p>
           </div>
 
           <button type="submit" class="w-full h-12 rounded-xl bg-[#2a3222] text-white font-semibold hover:bg-[#3d4632] transition-all hover:scale-[1.02] shadow-lg">
@@ -122,6 +206,6 @@
     </div>
   </main>
 
-  <script src="/static/assets/js/crear_reserva.js?v=3"></script>
+  <script src="/static/assets/js/crear_reserva.js?v=9"></script>
 </body>
 </html>

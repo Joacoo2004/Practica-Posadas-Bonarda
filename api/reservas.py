@@ -177,6 +177,113 @@ async def get_reservas_pendientes():
         logger.error(f"Error en GET /api/reservas/pendientes: {str(e)}")
         raise HTTPException(status_code=500, detail="Error al obtener reservas pendientes")
 
+# GET /api/reservas/calendario - Obtener reservas para calendario
+@router.get("/reservas/calendario")
+async def get_reservas_calendario(current_user = Depends(get_current_active_user)):
+    try:
+        user_id = current_user.id
+        connection = psycopg2.connect(**DB_CONFIG)
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
+        
+        # Obtener todas las reservas activas
+        query = """
+            SELECT r.id, r.usuario_id, r.fecha_check_in, r.fecha_check_out,
+                    r.cantidad_habitaciones, u.email AS contacto,
+                    INITCAP(r.estado) as estado
+            FROM reservas r
+            JOIN usuarios u ON r.usuario_id = u.id
+            WHERE r.estado NOT IN ('Cancelada', 'Finalizada')
+            ORDER BY r.fecha_check_in
+        """
+        reservas = execute_query(cursor, query)
+        
+        # Obtener reservas del usuario actual
+        query_mine = """
+            SELECT r.id, r.fecha_check_in, r.fecha_check_out,
+                    r.cantidad_habitaciones
+            FROM reservas r
+            WHERE r.usuario_id = %s AND r.estado NOT IN ('Cancelada', 'Finalizada')
+            ORDER BY r.fecha_check_in
+        """
+        reservas_mias = execute_query(cursor, query_mine, (user_id,))
+        
+        cursor.close()
+        connection.close()
+        
+        # Calcular ocupación por día
+        from datetime import date, timedelta
+        max_habitaciones = 4
+        
+        # Generar eventos para los próximos 6 meses
+        today = date.today()
+        end_range = today + timedelta(days=180)
+        
+        # Crear diccionario de ocupación por día
+        ocupacion = {}
+        for reserva in reservas:
+            check_in = reserva['fecha_check_in']
+            check_out = reserva['fecha_check_out']
+            actuales = check_in
+            while actuales < check_out:
+                dia_str = str(actuales)
+                if dia_str not in ocupacion:
+                    ocupacion[dia_str] = 0
+                ocupacion[dia_str] += reserva['cantidad_habitaciones']
+                actuales += timedelta(days=1)
+        
+        # Crear background events SOLO para días completamente ocupados (bloqueados)
+        blocked_dates = []
+        
+        dia = today
+        while dia <= end_range:
+            dia_str = str(dia)
+            ocupadas = ocupacion.get(dia_str, 0)
+            disponibles = max_habitaciones - ocupadas
+            
+            # Solo crear evento background para días completamente ocupados
+            if disponibles == 0:
+                blocked_dates.append({
+                    'start': dia_str,
+                    'end': dia_str,
+                    'display': 'background',
+                    'backgroundColor': '#ef4444',
+                    'extendedProps': {
+                        'tipo': 'bloqueado',
+                        'ocupadas': ocupadas,
+                        'disponibles': disponibles,
+                        'total': max_habitaciones
+                    }
+                })
+            
+            dia += timedelta(days=1)
+        
+        # Crear eventos para las reservas del usuario (diferentes a los bloquedos)
+        user_events = []
+        for reserva in reservas_mias:
+            user_events.append({
+                'id': reserva['id'],
+                'title': f"Tu reserva ({reserva['cantidad_habitaciones']} hab)",
+                'start': str(reserva['fecha_check_in']),
+                'end': str(reserva['fecha_check_out']),
+                'color': '#2a3222',
+                'allDay': True,
+                'extendedProps': {
+                    'tipo': 'mi_reserva',
+                    'habitaciones': reserva['cantidad_habitaciones'],
+                    'isMine': True
+                }
+            })
+        
+        logger.info(f"Usuario {user_id} consultó el calendario de reservas")
+        return {
+            'blockedDates': blocked_dates,
+            'userEvents': user_events,
+            'maxHabitaciones': max_habitaciones
+        }
+    except Exception as e:
+        logger.error(f"Error en GET /api/reservas/calendario para usuario {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error al obtener calendario")
+
 # GET /api/disponibilidad - Obtener reservas para calendario interactivo -> Pendiente
 @router.get("/disponibilidad")
 async def get_disponibilidad(start_date: date, end_date: date):
